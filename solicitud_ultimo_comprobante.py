@@ -56,16 +56,18 @@ def main():
     pto_vta = 1  # Example point of sale
     cbte_tipo = 1  # Example invoice type
     
-    # Get the token from the environment variable
-    token = os.environ.get("ARCA_TOKEN")
+     # Get the sign from ssl_files/sign.txt
+    with open("ssl/ssl_files/token.txt", 'r') as f:
+        token = f.read()
 
     if token is None:
         raise ValueError("ARCA_TOKEN environment variable not set!")
 
     print(f"Using token: {token[:25]}...")  
     
-    # Get the sign from the environment variable
-    sign = os.environ.get("ARCA_SIGN")
+    # Get the sign from ssl_files/sign.txt
+    with open("ssl/ssl_files/sign.txt", 'r') as f:
+        sign = f.read()
 
     if sign is None:
         raise ValueError("ARCA_SIGN environment variable not set!")

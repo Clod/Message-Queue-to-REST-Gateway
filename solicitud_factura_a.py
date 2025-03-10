@@ -106,8 +106,8 @@ if __name__ == "__main__":
     test_pto_vta = 1
     test_cbte_fch = "20250310"
     test_imp_total = 184.05
-    test_cbte_desde = 6
-    test_cbte_hasta = 6
+    test_cbte_desde = 10
+    test_cbte_hasta = 10
 
     result = send_soap_request(
         token, sign, cuit, test_pto_vta, test_cbte_fch, test_imp_total, test_cbte_desde, test_cbte_hasta
