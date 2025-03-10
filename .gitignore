@@ -1,4 +1,6 @@
 .DS_Store
 rabbit/
 ssl/responses/
-ssl/ssl_files/
+ssl/ssl_files/certificado_generado.pem
+ssl/ssl_files/MiClavePrivadaTest.key
+ssl/ssl_files/valid_token_and_sign.txt
