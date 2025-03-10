@@ -5,7 +5,7 @@ from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 import os
 
-def send_soap_message(token, sign, cuit, pto_vta, cbte_tipo, wsdl_url="https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL"):
+def solicitar_ultimo_comprobante(token, sign, cuit, pto_vta, cbte_tipo, wsdl_url="https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL"):
     """
     Sends a SOAP message to the AFIP web service to get the last authorized invoice number.
 
@@ -75,7 +75,7 @@ def main():
     print(f"Using token: {sign[:25]}...")  
 
     try:
-        response = send_soap_message(token, sign, cuit, pto_vta, cbte_tipo)
+        response = solicitar_ultimo_comprobante(token, sign, cuit, pto_vta, cbte_tipo)
         print("Response:")
         print(response)
     except Exception as e:

@@ -6,3 +6,5 @@ ssl/ssl_files/MiClavePrivadaTest.key
 ssl/ssl_files/valid_token_and_sign.txt
 ssl/ssl_files/sign.txt
 ssl/ssl_files/token.txt
+__pycache__/
+ssl/__pycache__/

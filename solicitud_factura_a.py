@@ -86,16 +86,19 @@ def send_soap_request(token, sign, cuit, pto_vta, cbte_fch, imp_total, cbte_desd
 
 
 if __name__ == "__main__":
-     # Get the token from the environment variable
-    token = os.environ.get("ARCA_TOKEN")
+
+    # Get the sign from ssl_files/sign.txt
+    with open("ssl/ssl_files/token.txt", 'r') as f:
+        token = f.read()
 
     if token is None:
         raise ValueError("ARCA_TOKEN environment variable not set!")
 
     print(f"Using token: {token[:25]}...")  
     
-    # Get the sign from the environment variable
-    sign = os.environ.get("ARCA_SIGN")
+    # Get the sign from ssl_files/sign.txt
+    with open("ssl/ssl_files/sign.txt", 'r') as f:
+        sign = f.read()
 
     if sign is None:
         raise ValueError("ARCA_SIGN environment variable not set!")
@@ -106,8 +109,8 @@ if __name__ == "__main__":
     test_pto_vta = 1
     test_cbte_fch = "20250310"
     test_imp_total = 184.05
-    test_cbte_desde = 10
-    test_cbte_hasta = 10
+    test_cbte_desde = 11
+    test_cbte_hasta = 11
 
     result = send_soap_request(
         token, sign, cuit, test_pto_vta, test_cbte_fch, test_imp_total, test_cbte_desde, test_cbte_hasta

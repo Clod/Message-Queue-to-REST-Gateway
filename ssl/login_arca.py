@@ -114,7 +114,7 @@ def sign_cms(certificate_path, private_key_path, data):
     
     return cms
 
-def main(certificate="ssl_files/certificado_generado.pem", 
+def login_ARCA(certificate="ssl_files/certificado_generado.pem", 
          private_key="ssl_files/MiClavePrivadaTest.key",
          service_id="wsfe", # OJO que hay que autorizarlo para este DN (Distinguished Name) en ARCA
          wsaa_wsdl="https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL"):
@@ -181,6 +181,8 @@ def main(certificate="ssl_files/certificado_generado.pem",
                
         print(f"Token saved to ssl_files/token.txt")
         print(f"Sign saved to ssl_files/sign.txt")
+        
+        return token, sign
 
         
     except Exception as e:
@@ -192,4 +194,4 @@ def main(certificate="ssl_files/certificado_generado.pem",
             raise e
 
 if __name__ == "__main__":
-    main()
+    login_ARCA()
