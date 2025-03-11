@@ -9,3 +9,4 @@ ssl/ssl_files/token.txt
 __pycache__/
 ssl/__pycache__/
 node_modules/
+README.txt
