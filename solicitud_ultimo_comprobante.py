@@ -56,8 +56,15 @@ def main():
     pto_vta = 1  # Example point of sale
     cbte_tipo = 1  # Example invoice type
     
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct absolute paths
+    token_path = os.path.join(script_dir, 'ssl', 'ssl_files', 'token.txt')
+    sign_path = os.path.join(script_dir, 'ssl', 'ssl_files', 'sign.txt')
+    
      # Get the sign from ssl_files/sign.txt
-    with open("ssl/ssl_files/token.txt", 'r') as f:
+    with open(token_path, 'r') as f:
         token = f.read()
 
     if token is None:
@@ -66,7 +73,7 @@ def main():
     print(f"Using token: {token[:25]}...")  
     
     # Get the sign from ssl_files/sign.txt
-    with open("ssl/ssl_files/sign.txt", 'r') as f:
+    with open(sign_path, 'r') as f:
         sign = f.read()
 
     if sign is None:
