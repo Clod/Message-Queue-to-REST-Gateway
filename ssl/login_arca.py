@@ -114,8 +114,8 @@ def sign_cms(certificate_path, private_key_path, data):
     
     return cms
 
-def login_ARCA(certificate="ssl_files/certificado_generado.pem", 
-         private_key="ssl_files/MiClavePrivadaTest.key",
+def login_ARCA(certificate="certificado_generado.pem", 
+         private_key="MiClavePrivadaTest.key",
          service_id="wsfe", # OJO que hay que autorizarlo para este DN (Distinguished Name) en ARCA
          wsaa_wsdl="https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL"):
     
@@ -128,7 +128,16 @@ def login_ARCA(certificate="ssl_files/certificado_generado.pem",
         service_id (str): The ID of the service to request access to.
         wsaa_wsdl (str): The URL of the WSAA WSDL file.
     """
-    
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct absolute paths
+    certificate_path = os.path.join(script_dir, 'ssl_files', certificate)
+    private_key_path = os.path.join(script_dir, 'ssl_files', private_key)
+
+    print(f"Certificate path: {certificate_path}")
+    print(f"Private key path: {private_key_path}")
+
     try:
         # Generate sequence number
         seq_nr = datetime.now().strftime('%Y%m%d%H%S')
@@ -143,7 +152,7 @@ def login_ARCA(certificate="ssl_files/certificado_generado.pem",
         # print(f"XML saved to {xml_filename}")
         
         # Sign the content
-        cms_signature = sign_cms(certificate, private_key, xml_content)
+        cms_signature = sign_cms(certificate_path, private_key_path, xml_content)
         
         # Encode in base64
         cms_base64 = base64.b64encode(cms_signature).decode('utf-8')
@@ -159,10 +168,10 @@ def login_ARCA(certificate="ssl_files/certificado_generado.pem",
         response = client.service.loginCms(cms_base64)
         
         # Save and print response
-        with open(f"responses/{seq_nr}-loginTicketResponse.xml", 'w') as f:
-            f.write(response)
+        # with open(f"responses/{seq_nr}-loginTicketResponse.xml", 'w') as f:
+        #     f.write(response)
         
-        print(f"Response saved to solicitud_desde_mac/{seq_nr}-loginTicketResponse.xml")
+        # print(f"Response saved to solicitud_desde_mac/{seq_nr}-loginTicketResponse.xml")
         print("Response content:")
         print(response)
         
@@ -173,10 +182,13 @@ def login_ARCA(certificate="ssl_files/certificado_generado.pem",
         token = credentials.find('token').text
         sign = credentials.find('sign').text
         
-        with open(f"ssl_files/token.txt", 'w') as f:
+        token_file_path = os.path.join(script_dir, 'ssl_files', 'token.txt')
+        sign_file_path = os.path.join(script_dir, 'ssl_files', 'sign.txt')
+        
+        with open(token_file_path, 'w') as f:
             f.write(token)
             
-        with open(f"ssl_files/sign.txt", 'w') as f:
+        with open(sign_file_path, 'w') as f:
             f.write(sign)
                
         print(f"Token saved to ssl_files/token.txt")
