@@ -1,3 +1,21 @@
+"""
+RabbitMQ consumer service for ARCA (Argentinian Revenue Service) integration.
+This service listens for requests on the 'arca' queue to fetch the last invoice number
+for a given CUIT (tax ID), point of sale, and invoice type. It handles authentication
+with ARCA and returns responses through a reply queue.
+
+Dependencies:
+    - pika: RabbitMQ client library
+    - zeep: SOAP client for ARCA web services
+    - Custom modules: solicitud_ultimo_comprobante, login_arca
+
+Environment Variables:
+    - RABBITMQ_HOST: RabbitMQ server host (default: localhost)
+    - RABBITMQ_PORT: RabbitMQ server port (default: 5672)
+    - RABBITMQ_USER: RabbitMQ username (default: guest)
+    - RABBITMQ_PASSWORD: RabbitMQ password (default: guest)
+"""
+
 import os
 import sys
 
@@ -18,6 +36,24 @@ RABBITMQ_PASSWORD = os.environ.get("RABBITMQ_PASSWORD", "guest")
 
 
 def process_message(ch, method, properties, body):
+    """
+    Process incoming RabbitMQ messages containing ARCA invoice query requests.
+    
+    Args:
+        ch (pika.Channel): The channel object for RabbitMQ communication
+        method (pika.spec.Basic.Deliver): Contains message delivery information
+        properties (pika.spec.BasicProperties): Message properties including reply_to and correlation_id
+        body (bytes): Message body containing JSON with request parameters
+    
+    The message body should contain:
+        - cuit: Tax ID number
+        - pto_vta: Point of sale number
+        - cbte_tipo: Invoice type code
+    
+    Raises:
+        ValueError: If message body is empty or missing required parameters
+        json.JSONDecodeError: If message body contains invalid JSON
+    """
     try:
         if not body:
             raise ValueError("Empty message body received")
@@ -26,9 +62,10 @@ def process_message(ch, method, properties, body):
             data = json.loads(body)
         except json.JSONDecodeError:
             raise ValueError(f"Invalid JSON in message body: {body}")
-        cuit = data.get("cuit")
-        pto_vta = data.get("pto_vta")
-        cbte_tipo = data.get("cbte_tipo")
+        # Extract required parameters from the JSON message
+        cuit = data.get("cuit")  # Tax ID number
+        pto_vta = data.get("pto_vta")  # Point of sale identifier
+        cbte_tipo = data.get("cbte_tipo")  # Invoice type code
 
         if not cuit or not pto_vta or not cbte_tipo:
             raise ValueError("Missing required parameters in message: cuit, pto_vta, cbte_tipo")
@@ -46,8 +83,10 @@ def process_message(ch, method, properties, body):
         #   with open(sign_file, 'r') as f:
         #       sign = f.read()
 
+        # Authenticate with ARCA service and get security tokens
         token, sign = login_ARCA()
 
+        # Query ARCA web service for the last invoice number
         response = solicitar_ultimo_comprobante(token, sign, cuit, pto_vta, cbte_tipo)
         # Convert Zeep response object to dictionary
         response_dict = serialize_object(response)
@@ -93,8 +132,20 @@ def process_message(ch, method, properties, body):
 
 
 def main():
+    """
+    Main function to establish RabbitMQ connection and start consuming messages.
+    
+    Sets up a connection to RabbitMQ using environment variables for configuration,
+    declares necessary queues ('arca' for requests and 'response' for replies),
+    and starts consuming messages from the 'arca' queue.
+    
+    The service runs indefinitely until interrupted with CTRL+C.
+    """
+    # Set up RabbitMQ connection with credentials from environment variables
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, port=RABBITMQ_PORT, credentials=credentials))
+    
+    # Create channel and ensure queues exist
     channel = connection.channel()
     channel.queue_declare(queue='arca')
     channel.queue_declare(queue='response') # For responses, if needed.

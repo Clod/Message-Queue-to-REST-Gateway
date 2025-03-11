@@ -1,14 +1,3 @@
-from cryptography import x509
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.x509 import load_pem_x509_certificate
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import pkcs7
-from datetime import datetime, timedelta
-from zeep import Client
-import base64
-import os
-
 '''
 This is just a preliminary version. The key is to manage the TA lifecycle correctly:
 
@@ -40,6 +29,17 @@ Handle Errors Gracefully: Even with careful management, errors can occur (networ
 Implement retry logic, but avoid immediately requesting a new TA on every error. This could trigger the rate 
 limit. Instead, retry with the existing TA a few times, then, after a suitable delay, attempt to get a new TA.
 '''
+
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.hazmat.primitives.serialization import pkcs7
+from datetime import datetime, timedelta
+from zeep import Client
+import base64
+import os
 
 def create_login_ticket_request(service_id):    
     """
