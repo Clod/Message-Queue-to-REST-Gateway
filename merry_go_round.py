@@ -33,18 +33,20 @@ def process_message(ch, method, properties, body):
         if not cuit or not pto_vta or not cbte_tipo:
             raise ValueError("Missing required parameters in message: cuit, pto_vta, cbte_tipo")
 
-        #Check for existing token and sign.  If not found, log in to ARCA.
-        token_file = "ssl/ssl_files/token.txt"
-        sign_file = "ssl/ssl_files/sign.txt"
+        # #Check for existing token and sign.  If not found, log in to ARCA.
+        # token_file = "ssl/ssl_files/token.txt"
+        # sign_file = "ssl/ssl_files/sign.txt"
         
-        if not os.path.exists(token_file) or not os.path.exists(sign_file):
-          print("Login to ARCA required...")
-          token, sign = login_ARCA()
-        else:
-          with open(token_file, 'r') as f:
-              token = f.read()
-          with open(sign_file, 'r') as f:
-              sign = f.read()
+        # if not os.path.exists(token_file) or not os.path.exists(sign_file):
+        #   print("Login to ARCA required...")
+        #   token, sign = login_ARCA()
+        # else:
+        #   with open(token_file, 'r') as f:
+        #       token = f.read()
+        #   with open(sign_file, 'r') as f:
+        #       sign = f.read()
+
+        token, sign = login_ARCA()
 
         response = solicitar_ultimo_comprobante(token, sign, cuit, pto_vta, cbte_tipo)
         # Convert Zeep response object to dictionary

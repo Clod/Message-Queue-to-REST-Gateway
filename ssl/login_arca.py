@@ -145,33 +145,16 @@ def login_ARCA(certificate="certificado_generado.pem",
         # Generate login ticket request
         xml_content = create_login_ticket_request(service_id)
         
-        # Save XML for debugging
-        # xml_filename = f"responses/{seq_nr}-LoginTicketRequest.xml"
-        # with open(xml_filename, 'wb') as f:
-        #     f.write(xml_content)
-        # print(f"XML saved to {xml_filename}")
-        
         # Sign the content
         cms_signature = sign_cms(certificate_path, private_key_path, xml_content)
         
         # Encode in base64
         cms_base64 = base64.b64encode(cms_signature).decode('utf-8')
-
-        # Save CMS signature for debugging
-        # cms_filename = f"responses/{seq_nr}-cms_signature.txt"
-        # with open(cms_filename, 'w') as f:
-        #     f.write(cms_base64)
-        # print(f"CMS signature saved to {cms_filename}")
         
         # Call WSAA web service
         client = Client(wsaa_wsdl)
         response = client.service.loginCms(cms_base64)
         
-        # Save and print response
-        # with open(f"responses/{seq_nr}-loginTicketResponse.xml", 'w') as f:
-        #     f.write(response)
-        
-        # print(f"Response saved to solicitud_desde_mac/{seq_nr}-loginTicketResponse.xml")
         print("Response content:")
         print(response)
         
@@ -196,13 +179,30 @@ def login_ARCA(certificate="certificado_generado.pem",
         
         return token, sign
 
-        
     except Exception as e:
         error_msg = str(e)
         print(f"Error: {error_msg}")
-        with open(f"responses/{seq_nr}-loginTicketResponse-ERROR.xml", 'w') as f:
-            f.write(error_msg)
-        if (error_msg != "El CEE ya posee un TA valido para el acceso al WSN solicitado"):
+        
+        # If we get the "already valid TA" error, read and return existing token and sign
+        if error_msg == "El CEE ya posee un TA valido para el acceso al WSN solicitado":
+            token_file_path = os.path.join(script_dir, 'ssl_files', 'token.txt')
+            sign_file_path = os.path.join(script_dir, 'ssl_files', 'sign.txt')
+            
+            try:
+                with open(token_file_path, 'r') as f:
+                    token = f.read().strip()
+                with open(sign_file_path, 'r') as f:
+                    sign = f.read().strip()
+                print("Using existing valid token and sign")
+                return token, sign
+            except Exception as read_error:
+                print(f"Error reading existing token/sign: {read_error}")
+                raise e
+        else:
+            # For other errors, write to error log and raise
+            loginTicketResponse_ERROR = os.path.join(script_dir, "responses", f"{seq_nr}-loginTicketResponse-ERROR.xml")
+            with open(loginTicketResponse_ERROR, 'w') as f:
+                f.write(error_msg)
             raise e
 
 if __name__ == "__main__":
